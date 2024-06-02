@@ -139,4 +139,30 @@ describe('snack routes', () => {
       })
       .expect(204)
   })
+
+  it('should be delete snack', async () => {
+    const userResponse = await request(app.server)
+      .post('/users')
+      .send({ name: 'Igor' })
+      .expect(201)
+
+    await request(app.server)
+      .post('/snacks')
+      .set('Cookie', userResponse.get('Set-Cookie')!)
+      .send({
+        name: 'Hambuguer',
+        description: 'Rocket Burguer',
+        isDiet: true,
+        date: new Date(),
+      })
+
+    const userSnacks = await request(app.server)
+      .get('/snacks/')
+      .set('Cookie', userResponse.get('Set-Cookie')!)
+
+    await request(app.server)
+      .delete(`/snacks/${userSnacks.body.snacks[0].id}`)
+      .set('Cookie', userResponse.get('Set-Cookie')!)
+      .expect(204)
+  })
 })

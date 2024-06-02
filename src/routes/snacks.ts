@@ -123,4 +123,32 @@ export async function snacksRoutes(app: FastifyInstance) {
 
     return reply.status(200).send({ snacks: formatResponse })
   })
+
+  app.delete('/:id', async (request, reply) => {
+    const { userId } = request.cookies
+
+    const getSnackParamsSchema = z.object({
+      id: z.string().uuid(),
+    })
+
+    const { id } = getSnackParamsSchema.parse(request.params)
+
+    const snack = await knex('snacks')
+      .where({
+        id,
+        userId,
+      })
+      .first()
+
+    if (!snack) return reply.status(404).send()
+
+    await knex('snacks')
+      .where({
+        id,
+        userId,
+      })
+      .delete()
+
+    return reply.status(204).send()
+  })
 }
