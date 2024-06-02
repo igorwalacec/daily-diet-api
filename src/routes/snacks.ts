@@ -12,7 +12,7 @@ export async function snacksRoutes(app: FastifyInstance) {
     const createSnackBodySchema = z.object({
       name: z.string(),
       description: z.string(),
-      isDiet: z.boolean(),
+      isDiet: z.coerce.boolean(),
       date: z.coerce.date(),
     })
 
@@ -43,7 +43,7 @@ export async function snacksRoutes(app: FastifyInstance) {
     const updateSnackBodySchema = z.object({
       name: z.string(),
       description: z.string(),
-      isDiet: z.boolean(),
+      isDiet: z.coerce.boolean(),
       date: z.coerce.date(),
     })
     const { name, description, isDiet, date } = updateSnackBodySchema.parse(
@@ -68,5 +68,30 @@ export async function snacksRoutes(app: FastifyInstance) {
     })
 
     return reply.status(204).send()
+  })
+
+  app.get('/', async (request, reply) => {
+    const { userId } = request.cookies
+
+    const snacks = await knex('snacks')
+      .where({
+        userId,
+      })
+      .orderBy('date', 'desc')
+      .select()
+
+    if (!snacks) return reply.status(404).send()
+
+    const formatResponse = snacks.map((item) => {
+      return {
+        id: item.id,
+        name: item.name,
+        description: item.description,
+        isDiet: !!item.isDiet,
+        date: new Date(item.date),
+      }
+    })
+
+    return reply.status(200).send({ snacks: formatResponse })
   })
 }

@@ -1,4 +1,4 @@
-import { afterAll, beforeAll, beforeEach, describe, it } from 'vitest'
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest'
 import { app } from '../src/app'
 import request from 'supertest'
 import { execSync } from 'child_process'
@@ -43,6 +43,36 @@ describe('snack routes', () => {
         date: new Date(),
       })
       .expect(201)
+  })
+
+  it('should be list all snacks specific user', async () => {
+    const userResponse = await request(app.server)
+      .post('/users')
+      .send({ name: 'Igor' })
+      .expect(201)
+
+    const date = new Date()
+
+    await request(app.server)
+      .post('/snacks')
+      .set('Cookie', userResponse.get('Set-Cookie')!)
+      .send({
+        name: 'Hambuguer',
+        description: 'Rocket Burguer',
+        isDiet: true,
+        date,
+      })
+
+    const userSnacks = await request(app.server)
+      .get('/snacks')
+      .set('Cookie', userResponse.get('Set-Cookie')!)
+      .expect(200)
+
+    expect(userSnacks.body.snacks).toHaveLength(1)
+    expect(userSnacks.body.snacks[0].name).toBe('Hambuguer')
+    expect(userSnacks.body.snacks[0].description).toBe('Rocket Burguer')
+    expect(userSnacks.body.snacks[0].isDiet).toBe(true)
+    expect(new Date(userSnacks.body.snacks[0].date)).toStrictEqual(date)
   })
 
   it.todo('should be update data', async () => {
