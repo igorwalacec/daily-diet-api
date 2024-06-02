@@ -44,4 +44,21 @@ describe('snack routes', () => {
       })
       .expect(201)
   })
+
+  it.todo('should be update data', async () => {
+    const userResponse = await request(app.server)
+      .post('/users')
+      .send({ name: 'Igor' })
+      .expect(201)
+
+    await request(app.server)
+      .post('/snacks')
+      .set('Cookie', userResponse.get('Set-Cookie')!)
+      .send({
+        name: 'Hambuguer',
+        description: 'Rocket Burguer',
+        isDiet: true,
+        date: new Date(),
+      })
+  })
 })
