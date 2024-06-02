@@ -70,6 +70,35 @@ export async function snacksRoutes(app: FastifyInstance) {
     return reply.status(204).send()
   })
 
+  app.get('/:id', async (request, reply) => {
+    const { userId } = request.cookies
+
+    const getSnackParamsSchema = z.object({
+      id: z.string().uuid(),
+    })
+
+    const { id } = getSnackParamsSchema.parse(request.params)
+
+    const snack = await knex('snacks')
+      .where({
+        id,
+        userId,
+      })
+      .first()
+
+    if (!snack) return reply.status(404).send()
+
+    const formatedSnack = {
+      id: snack.id,
+      name: snack.name,
+      description: snack.description,
+      isDiet: !!snack.isDiet,
+      date: new Date(snack.date),
+    }
+
+    return reply.status(200).send(formatedSnack)
+  })
+
   app.get('/', async (request, reply) => {
     const { userId } = request.cookies
 
