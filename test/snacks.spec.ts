@@ -108,7 +108,7 @@ describe('snack routes', () => {
     expect(new Date(snack.body.date)).toStrictEqual(date)
   })
 
-  it.todo('should be update data', async () => {
+  it('should be update data', async () => {
     const userResponse = await request(app.server)
       .post('/users')
       .send({ name: 'Igor' })
@@ -123,5 +123,20 @@ describe('snack routes', () => {
         isDiet: true,
         date: new Date(),
       })
+
+    const userSnacks = await request(app.server)
+      .get('/snacks/')
+      .set('Cookie', userResponse.get('Set-Cookie')!)
+
+    await request(app.server)
+      .put(`/snacks/${userSnacks.body.snacks[0].id}`)
+      .set('Cookie', userResponse.get('Set-Cookie')!)
+      .send({
+        name: 'Pizza',
+        description: 'Pepperoni',
+        isDiet: false,
+        date: new Date(),
+      })
+      .expect(204)
   })
 })
