@@ -124,6 +124,46 @@ export async function snacksRoutes(app: FastifyInstance) {
     return reply.status(200).send({ snacks: formatResponse })
   })
 
+  app.get('/metrics', async (request, reply) => {
+    const { userId } = request.cookies
+
+    const snacks = await knex('snacks')
+      .where({
+        userId,
+      })
+      .orderBy('date', 'desc')
+      .select()
+
+    if (!snacks) return reply.status(404).send()
+
+    const totalSnacks = snacks.length
+    const totalDietSnacks = snacks.filter((snack) => !!snack.isDiet).length
+    const totalNotDietSnacks = snacks.filter((snack) => !snack.isDiet).length
+    const { bestOnDietSequence } = snacks.reduce(
+      (acc, snack) => {
+        if (snack.isDiet) {
+          acc.currentSequence += 1
+        } else {
+          acc.currentSequence = 0
+        }
+
+        if (acc.currentSequence > acc.bestOnDietSequence) {
+          acc.bestOnDietSequence = acc.currentSequence
+        }
+
+        return acc
+      },
+      { bestOnDietSequence: 0, currentSequence: 0 },
+    )
+
+    return reply.status(200).send({
+      totalSnacks,
+      totalDietSnacks,
+      totalNotDietSnacks,
+      bestOnDietSequence,
+    })
+  })
+
   app.delete('/:id', async (request, reply) => {
     const { userId } = request.cookies
 

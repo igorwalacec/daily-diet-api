@@ -165,4 +165,41 @@ describe('snack routes', () => {
       .set('Cookie', userResponse.get('Set-Cookie')!)
       .expect(204)
   })
+
+  it('should be get metrics', async () => {
+    const userResponse = await request(app.server)
+      .post('/users')
+      .send({ name: 'Igor' })
+      .expect(201)
+
+    await request(app.server)
+      .post('/snacks')
+      .set('Cookie', userResponse.get('Set-Cookie')!)
+      .send({
+        name: 'Hambuguer',
+        description: 'Rocket Burguer',
+        isDiet: true,
+        date: new Date(),
+      })
+
+    await request(app.server)
+      .post('/snacks')
+      .set('Cookie', userResponse.get('Set-Cookie')!)
+      .send({
+        name: 'Pizza',
+        description: 'Pepperoni',
+        isDiet: false,
+        date: new Date(),
+      })
+
+    const metrics = await request(app.server)
+      .get('/snacks/metrics')
+      .set('Cookie', userResponse.get('Set-Cookie')!)
+      .expect(200)
+
+    expect(metrics.body.totalSnacks).toBe(2)
+    expect(metrics.body.totalDietSnacks).toBe(1)
+    expect(metrics.body.totalNotDietSnacks).toBe(1)
+    expect(metrics.body.bestOnDietSequence).toBe(1)
+  })
 })
