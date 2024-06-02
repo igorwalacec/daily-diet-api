@@ -10,7 +10,7 @@
     "knex": "node --import tsx ./node_modules/knex/bin/cli.js",
     "dev": "tsx watch src/server.ts",
     "lint": "eslint src --ext .ts --fix",
-    "test": "vitest"
+    "test": "vitest --run"
   },
   "keywords": [],
   "author": "",
