@@ -9,7 +9,8 @@
   "scripts": {
     "knex": "node --import tsx ./node_modules/knex/bin/cli.js",
     "dev": "tsx watch src/server.ts",
-    "lint": "eslint src --ext .ts --fix"
+    "lint": "eslint src --ext .ts --fix",
+    "test": "vitest"
   },
   "keywords": [],
   "author": "",
@@ -17,10 +18,14 @@
   "devDependencies": {
     "@rocketseat/eslint-config": "^2.2.2",
     "@types/node": "^20.13.0",
+    "@types/supertest": "^6.0.2",
     "eslint": "^8.57.0",
-    "tsx": "^4.11.0"
+    "supertest": "^7.0.0",
+    "tsx": "^4.11.0",
+    "vitest": "^1.6.0"
   },
   "dependencies": {
+    "@fastify/cookie": "^9.3.1",
     "dotenv": "^16.4.5",
     "fastify": "^4.27.0",
     "knex": "^3.1.0",
